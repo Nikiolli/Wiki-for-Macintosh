@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @font-face {
+      font-family: 'ChicagoFLF';
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/Chicago/1.0/ChicagoFLF.ttf') format('truetype');
+    }
+
+    body {
+      font-family: 'ChicagoFLF', 'Chicago', 'Helvetica Neue', sans-serif;
+      background: #999;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+    }
+
+    .window {
+      background: #fff;
+      border: 2px solid #000;
+      border-radius: 5px;
+      width: 1000px; /* Adjusted for larger window */
+      box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+    }
+
+    .title-bar {
+      background: linear-gradient(90deg, #000, #000);
+      border-bottom: 2px solid #000;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title {
+      color: white;
+      font-size: 14px;
+      flex-grow: 1;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .button {
+      width: 12px;
+      height: 12px;
+      border: 2px solid #000;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .menu-bar {
+      border-bottom: 2px solid #000;
+      padding: 5px 10px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .menu-item {
+      cursor: pointer;
+      position: relative;
+      padding: 2px 5px;
+    }
+
+    .menu-item:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #fff;
+      border: 2px solid #000;
+      padding: 5px 0;
+      min-width: 150px;
+      z-index: 1000;
+    }
+
+    .menu-item:hover .dropdown {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      border: 2px solid #000;
+      padding: 5px;
+      font-family: inherit;
+      flex-grow: 1;
+      font-size: 14px;
+    }
+
+    .search-btn {
+      background: #fff;
+      border: 2px solid #000;
+      padding: 5px 15px;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .search-btn:active {
+      background: #000;
+      color: #fff;
+    }
+
+    .results {
+      border: 2px solid #000;
+      height: 400px;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    .status-bar {
+      border-top: 2px solid #000;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .search-result {
+      margin-bottom: 20px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .search-result:hover {
+      background: #eee;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .article {
+      font-size: 14px;
+    }
+
+    /* Macintosh black and white effect for images */
+    .article img {
+      max-width: 100%;
+      height: auto;
+      filter: grayscale(100%) contrast(150%) brightness(80%);
+      image-rendering: pixelated;
+    }
+
+    /* Style thumbnails */
+    .article .thumb {
+      border: 2px solid #000;
+      padding: 5px;
+      margin: 10px;
+      background: #fff;
+    }
+
+    .article .thumbcaption {
+      border-top: 1px solid #000;
+      margin-top: 5px;
+      padding-top: 5px;
+      font-size: 12px;
+    }
+
+    .back-btn {
+      margin-bottom: 10px;
+    }
+
+    .error {
+      color: #000;
+      padding: 10px;
+      border: 2px solid #000;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+
+    /* Retro scrollbar styling */
+    .results::-webkit-scrollbar {
+      width: 16px;
+    }
+
+    .results::-webkit-scrollbar-track {
+      background: #fff;
+      border-left: 2px solid #000;
+    }
+
+    .results::-webkit-scrollbar-thumb {
+      background: #000;
+      border: 2px solid #000;
+    }
+
+    /* Additional retro styles for links */
+    .article a {
+      color: #000;
+      text-decoration: none;
+      border-bottom: 1px dotted #000;
+    }
+
+    .article a:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    /* Table styles */
+    .article table {
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+
+    .article table, .article th, .article td {
+      border: 2px solid #000;
+    }
+
+    .article th, .article td {
+      padding: 5px;
+    }
+
+    .article th {
+      background: #000;
+      color: #fff;
+    }
+
+    /* Dark mode */
+    .dark-mode .window {
+      background: #000;
+      color: #fff;
+    }
+
+    .dark-mode .article img {
+      filter: grayscale(100%) contrast(120%) brightness(120%) invert(100%);
+    }
+
+    .dark-mode input,
+    .dark-mode .search-btn,
+    .dark-mode .dropdown {
+      background: #000;
+      color: #fff;
+    }
+
+    .dark-mode .search-result:hover {
+      background: #333;
+    }
+
+    .dark-mode .article a {
+      color: #fff;
+      border-bottom: 1px dotted #fff;
+    }
+
+    .dark-mode .article a:hover {
+      background: #fff;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="title-bar">
+      <div class="buttons">
+        <div class="button" onclick="handleClose()"></div>
+        <div class="button" onclick="handleMinimize()"></div>
+        <div class="button" onclick="handleZoom()"></div>
+      </div>
+      <div class="title">MacWiki Browser</div>
+    </div>
+    <div class="menu-bar">
+      <span class="menu-item">
+        File
+        <div class="dropdown">
+          <div class="dropdown-item" onclick="handleNew()">New Window</div>
+          <div class="dropdown-item" onclick="handleClose()">Close</div>
+        </div>
+      </span>
+      <span class="menu-item">
+        Edit
+        <div class="dropdown">
+          <div class="dropdown-item" onclick="handleCopy()">Copy</div>
+          <div class="dropdown-item" onclick="handlePaste()">Paste</div>
+        </div>
+      </span>
+      <span class="menu-item">
+        View
+        <div class="dropdown">
+          <div class="dropdown-item" onclick="toggleDarkMode()">Toggle Dark Mode</div>
+          <div class="dropdown-item" onclick="handleZoom()">Zoom</div>
+        </div>
+      </span>
+      <span class="menu-item">
+        History
+        <div class="dropdown" id="historyMenu"></div>
+      </span>
+    </div>
+    <div class="content">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search Wikipedia...">
+        <button class="search-btn" onclick="handleSearch()">Search</button>
+      </div>
+      <div class="results" id="resultsContainer">
+        <h2>Welcome to MacWiki Browser</h2>
+        <p>Enter a search term above to begin exploring Wikipedia.</p>
+      </div>
+    </div>
+    <div class="status-bar" id="statusBar">
+      Ready.
+    </div>
+  </div>
+
+  <script>
+    let searchHistory = [];
+    let currentArticle = null;
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleSearch();
+      }
+    });
+
+    async function handleSearch() {
+      const searchTerm = document.getElementById('searchInput').value;
+      if (!searchTerm) return;
+
+      updateStatus('Searching...');
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.innerHTML = '<div class="loading">Searching...</div>';
+
+      try {
+        const response = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`
+        );
+        const data = await response.json();
+        displaySearchResults(data.query.search);
+        updateStatus('Search complete.');
+      } catch (error) {
+        resultsContainer.innerHTML = '<div class="error">An error occurred while searching. Please try again.</div>';
+        updateStatus('Error occurred during search.');
+      }
+    }
+
+    function displaySearchResults(results) {
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.innerHTML = '';
+
+      if (results.length === 0) {
+        resultsContainer.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      results.forEach(result => {
+        const resultElement = document.createElement('div');
+        resultElement.className = 'search-result';
+        resultElement.innerHTML = `
+          <h3>${result.title}</h3>
+          <p>${result.snippet.replace(/(<([^>]+)>)/gi, '')}</p>
+        `;
+        resultElement.onclick = () => loadArticle(result.title);
+        resultsContainer.appendChild(resultElement);
+      });
+    }
+
+    async function loadArticle(title) {
+      updateStatus('Loading article...');
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.innerHTML = '<div class="loading">Loading article...</div>';
+
+      try {
+        const response = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json&origin=*`
+        );
+        const data = await response.json();
+        
+        addToHistory(title);
+        currentArticle = title;
+
+        let articleHtml = data.parse.text['*'];
+        articleHtml = articleHtml.replace(/href="\/wiki\/([^"]*)"/g, 'href="#" onclick="loadArticle(\'$1\')"');
+
+        resultsContainer.innerHTML = `
+          <button class="search-btn back-btn" onclick="handleBack()">← Back to Search</button>
+          <div class="article">
+            <h1>${data.parse.title}</h1>
+            ${articleHtml}
+          </div>
+        `;
+        updateStatus('Article loaded.');
+      } catch (error) {
+        resultsContainer.innerHTML = '<div class="error">An error occurred while loading the article. Please try again.</div>';
+        updateStatus('Error loading article.');
+      }
+    }
+
+    function handleBack() {
+      const searchTerm = document.getElementById('searchInput').value;
+      if (searchTerm) {
+        handleSearch();
+      } else {
+        document.getElementById('resultsContainer').innerHTML = `
+          <h2>Welcome to MacWiki Browser</h2>
+          <p>Enter a search term above to begin exploring Wikipedia.</p>
+        `;
+        updateStatus('Ready.');
+      }
+    }
+
+    function addToHistory(title) {
+      if (!searchHistory.includes(title)) {
+        searchHistory.unshift(title);
+        if (searchHistory.length > 10) {
+          searchHistory.pop();
+        }
+        updateHistoryMenu();
+      }
+    }
+
+    function updateHistoryMenu() {
+      const historyMenu = document.getElementById('historyMenu');
+      historyMenu.innerHTML = '';
+      searchHistory.forEach(title => {
+        const item = document.createElement('div');
+        item.className = 'dropdown-item';
+        item.textContent = title;
+        item.onclick = () => loadArticle(title);
+        historyMenu.appendChild(item);
+      });
+    }
+
+    function updateStatus(message) {
+      document.getElementById('statusBar').textContent = message;
+    }
+
+    function handleClose() {
+      alert('Window close clicked! In a real app, this would close the window.');
+    }
+
+    function handleMinimize() {
+      alert('Minimize clicked! In a real app, this would minimize the window.');
+    }
+
+    function handleZoom() {
+      alert('Zoom clicked! In a real app, this would zoom the window.');
+    }
+
+    function handleNew() {
+      window.open(window.location.href, '_blank');
+    }
+
+    function handleCopy() {
+      const selection = window.getSelection();
+      if (selection.toString()) {
+        navigator.clipboard.writeText(selection.toString());
+        updateStatus('Text copied to clipboard.');
+      }
+    }
+
+    async function handlePaste() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('searchInput').value = text;
+        updateStatus('Text pasted from clipboard.');
+      } catch (err) {
+        updateStatus('Unable to paste from clipboard.');
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
+</body>
+</html>
